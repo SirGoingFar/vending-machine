@@ -1,5 +1,9 @@
 package application;
 
+import manager.CoinManager;
+import manager.DefaultCoinManager;
+import manager.DefaultProductSlotManager;
+import manager.ProductSlotManager;
 import operation.ConsumerOperation;
 import operation.MaintenanceOperation;
 
@@ -7,6 +11,23 @@ import java.math.BigDecimal;
 import java.util.Collection;
 
 public final class VendingMachine implements MaintenanceOperation, ConsumerOperation {
+
+    //#region Class Variables
+    private final CoinManager coinManager;
+    private final ProductSlotManager productSlotManager;
+    //#endregion
+
+    //#region Class Constructor
+    public VendingMachine(int productSlotSize, Collection<Double> coinList) {
+        this.coinManager = new DefaultCoinManager(coinList);
+        this.productSlotManager = new DefaultProductSlotManager(productSlotSize);
+    }
+
+    public VendingMachine(CoinManager coinManager, ProductSlotManager productSlotManager) {
+        this.coinManager = coinManager;
+        this.productSlotManager = productSlotManager;
+    }
+    //#endregion
 
     //#region Consumer
     @Override
