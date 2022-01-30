@@ -12,18 +12,24 @@ import java.util.Collection;
 
 public final class VendingMachine implements MaintenanceOperation, ConsumerOperation {
 
+    //#region class constants
+    private final Object BUY_PRODUCT_MONITOR_OBJECT = new Object();
+    private final Class TAG = this.getClass();
+    //#end region
+
     //#region Class Variables
     private final CoinManager coinManager;
     private final ProductSlotManager productSlotManager;
     //#endregion
 
     //#region Class Constructor
-    public VendingMachine(int productSlotSize, Collection<Double> coinList) {
+    public VendingMachine(final int productSlotSize, final Collection<Double> coinList) {
         this.coinManager = new DefaultCoinManager(coinList);
         this.productSlotManager = new DefaultProductSlotManager(productSlotSize);
     }
 
-    public VendingMachine(CoinManager coinManager, ProductSlotManager productSlotManager) {
+    //Mostly useful for test instantiation
+    public VendingMachine(final CoinManager coinManager, final ProductSlotManager productSlotManager) {
         this.coinManager = coinManager;
         this.productSlotManager = productSlotManager;
     }
@@ -31,35 +37,50 @@ public final class VendingMachine implements MaintenanceOperation, ConsumerOpera
 
     //#region Consumer
     @Override
-    public Collection<Double> buy(int productSlotId, Collection<Double> coinCollection) {
-        return null;
-    }
-
-    @Override
-    public BigDecimal getProductPrice(int productSlotId) {
-        return null;
+    public Collection<Double> buy(final int productSlotIndex, final Collection<Double> coinCollection) {
+        synchronized (BUY_PRODUCT_MONITOR_OBJECT) {
+            //check for empty coin list
+            //check if provided coins are supported
+            //Check if slot is available
+            //Check for product inventory count (>=1)
+            //Check if product price is set
+            //Check if product amount < sum of coin list (sum using List.reduce)
+            //Check if change is available (add coin list items together, less the product  amount... then compute change)
+            //Balance inventory (less product inventory, balance coin - increment coin values in coin list, decrement the qty of coin)
+            return null;
+        }
     }
     //#endregion
 
     //#region Maintenance
     @Override
-    public void setProductInventory(int productSlotId, long newInventorySize) {
-
+    public void setProductInventorySize(final int productSlotIndex, final long newInventorySize) {
+        productSlotManager.updateSlotProductInventorySize(productSlotIndex, newInventorySize);
     }
 
     @Override
-    public long getProductInventorySize(int productSlotId) {
-        return 0;
+    public long getProductInventorySize(final int productSlotIndex) {
+        return productSlotManager.getSlotProductInventorySize(productSlotIndex);
     }
 
     @Override
-    public void setProductPrice(int productSlotId, BigDecimal productPrice) {
-
+    public void setProductPrice(final int productSlotIndex, final BigDecimal productPrice) {
+        productSlotManager.setSlotProductPrice(productSlotIndex, productPrice);
     }
 
     @Override
-    public void setCoinAvailableCount(double coinValue, long newAvailableCount) {
+    public void setCoinAvailableCount(final double coinValue, final int newAvailableCount) {
+        coinManager.setCoinAvailableCount(coinValue, newAvailableCount);
+    }
 
+    @Override
+    public long getCoinAvailableCount(double coinValue) {
+        return coinManager.getCoinAvailableCount(coinValue);
     }
     //#endregion
+
+    @Override
+    public BigDecimal getProductPrice(final int productSlotIndex) {
+        return productSlotManager.getSlotProductPrice(productSlotIndex);
+    }
 }
