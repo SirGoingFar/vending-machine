@@ -1,5 +1,6 @@
-package manager;
+package manager.tests;
 
+import manager.DefaultProductSlotManager;
 import model.Product;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

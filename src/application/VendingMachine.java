@@ -4,6 +4,7 @@ import manager.CoinManager;
 import manager.DefaultCoinManager;
 import manager.DefaultProductSlotManager;
 import manager.ProductSlotManager;
+import model.Product;
 import operation.ConsumerOperation;
 import operation.MaintenanceOperation;
 
@@ -39,7 +40,7 @@ public final class VendingMachine implements MaintenanceOperation, ConsumerOpera
     @Override
     public Collection<Double> buy(final int productSlotIndex, final Collection<Double> coinCollection) {
         synchronized (BUY_PRODUCT_MONITOR_OBJECT) {
-            //check for empty coin list
+            //Check for empty coin list
             //check if provided coins are supported
             //Check if slot is available
             //Check for product inventory count (>=1)
@@ -53,6 +54,16 @@ public final class VendingMachine implements MaintenanceOperation, ConsumerOpera
     //#endregion
 
     //#region Maintenance
+    @Override
+    public void addProductToSlot(final BigDecimal price, final int inventorySize) {
+        productSlotManager.addProductToSlot(new Product(price, inventorySize));
+    }
+
+    @Override
+    public void removeProductFromSlot(int productSlot) {
+        productSlotManager.removeProductAtSlot(productSlot);
+    }
+
     @Override
     public void setProductInventorySize(final int productSlotIndex, final long newInventorySize) {
         productSlotManager.updateSlotProductInventorySize(productSlotIndex, newInventorySize);
