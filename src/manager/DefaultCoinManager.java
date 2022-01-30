@@ -3,10 +3,8 @@ package manager;
 import com.sun.istack.internal.NotNull;
 import util.Logger;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 
 public class DefaultCoinManager implements CoinManager {
 
@@ -52,6 +50,81 @@ public class DefaultCoinManager implements CoinManager {
         }
     }
     //#endregion
+
+
+    @Override
+    public boolean areCoinsSupported(Collection<Double> coinList) {
+        synchronized (COIN_ACCESS_MONITOR_OBJECT) {
+            if (coinList == null || coinList.isEmpty()) {
+                Logger.error(TAG, "Coin list is empty. It is required for operation");
+                throw new IllegalArgumentException("Coin list is required");
+            }
+
+            for (Double coin : coinList) {
+                if (!coinToCountMap.containsKey(coin)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    @Override
+    public Collection<Double> getPossibleCoinCombinationFor(@NotNull final BigDecimal amount) {
+        synchronized (COIN_ACCESS_MONITOR_OBJECT) {
+            if (amount == null || amount.doubleValue() < 0.0) {
+                String errorMessage = "Invalid amount provided";
+                Logger.error(TAG, errorMessage);
+                throw new IllegalArgumentException(errorMessage);
+            }
+
+            if (amount.doubleValue() == 0.0) {
+                return new ArrayList<>();
+            }
+
+            List<Double> combinationList = new ArrayList<>();
+            //Throw IllegalStateException if change combination does not exist
+            //"Change currently unavailable"
+            //Check if change is available (add coin list items together, less the product  amount... then compute change)
+
+            return combinationList;
+        }
+    }
+
+    //Todo: Trade off - we could have used the customer coin as part of the change computation. But that doesn't follow a proper accounting process
+    //What if after adding the customer money to the available coin and another customer purchase hijack it in the process and we end up settling that
+    //the other customer with the first customer's money
+    @Override
+    public void balanceCoins(final Collection<Double> creditCoinList, final Collection<Double> debitCoinList) {
+        synchronized (COIN_ACCESS_MONITOR_OBJECT) {
+            if (creditCoinList == null || creditCoinList.isEmpty()) {
+                String errorMessage = "Credit coin list is required for this operation";
+                Logger.error(TAG, errorMessage);
+                throw new IllegalArgumentException(errorMessage);
+            }
+
+            if (debitCoinList == null || debitCoinList.isEmpty()) {
+                String errorMessage = "Debit coin list is required for this operation";
+                Logger.error(TAG, errorMessage);
+                throw new IllegalArgumentException(errorMessage);
+            }
+
+            //Remove debit coins
+            int newCoinCount;
+            for (Double coin : debitCoinList) {
+                validateCoinSupport(coin);
+                newCoinCount = coinToCountMap.get(coin) - 1;
+                coinToCountMap.put(coin, newCoinCount);
+            }
+
+            //Add credit coins
+            for (Double coin : creditCoinList) {
+                validateCoinSupport(coin);
+                newCoinCount = coinToCountMap.get(coin) + 1;
+                coinToCountMap.put(coin, newCoinCount);
+            }
+        }
+    }
 
     private void validateCoinSupport(double coinValue) {
         if (!coinToCountMap.containsKey(coinValue)) {
