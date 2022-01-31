@@ -1,7 +1,9 @@
 package application;
 
-import java.util.HashSet;
-import java.util.Set;
+import util.Logger;
+
+import java.math.BigDecimal;
+import java.util.*;
 
 public class VendingMachineApplication {
     public static void main(String[] args) {
@@ -11,5 +13,18 @@ public class VendingMachineApplication {
         coinList.add(0.5);
         coinList.add(1.0);
         VendingMachine vm = new VendingMachine(10, coinList);
+
+        //Add initial coins
+        vm.setCoinAvailableCount(0.1, 3);
+        vm.setCoinAvailableCount(0.2, 2);
+        vm.setCoinAvailableCount(0.5, 7);
+        vm.setCoinAvailableCount(1.0, 1);
+
+        //Add product
+        vm.addProductToSlot(BigDecimal.valueOf(0.5), 2);
+
+        //Buy product
+        Collection<Double> changeList = vm.buy(0, Arrays.asList(1.0,0.5,0.2));
+        Logger.info("Change: " + changeList);
     }
 }

@@ -13,6 +13,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static util.NumbersUtil.compare;
+import static util.NumbersUtil.toDp;
+
 public final class VendingMachine implements MaintenanceOperation, ConsumerOperation {
 
     //#region class constants
@@ -66,15 +69,15 @@ public final class VendingMachine implements MaintenanceOperation, ConsumerOpera
             }
 
             //Check if the customer has the purchasing power
-            BigDecimal coinSum = BigDecimal.valueOf(coinCollection.stream().mapToDouble(Double::doubleValue).sum());
-            int compValue = coinSum.compareTo(productPrice);
+            BigDecimal coinSum = toDp(BigDecimal.valueOf(coinCollection.stream().mapToDouble(item -> item).sum()), 2);
+            int compValue = compare(coinSum, productPrice);
             if (compValue < 0) {
                 throw new IllegalArgumentException("Product price is more than the coin(s) provided");
             }
 
             Collection<Double> customerChangeCombination = new ArrayList<>();
             if (compValue > 0) {
-                customerChangeCombination = coinManager.getCoinCombinationFor(coinSum.subtract(productPrice));
+                customerChangeCombination = coinManager.getPossibleCoinCombinationFor(coinSum.subtract(productPrice));
             }
 
             //Balance inventory

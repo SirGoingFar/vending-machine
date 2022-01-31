@@ -90,6 +90,8 @@ public class DefaultProductSlotManager implements ProductSlotManager {
     public void addProductToSlot(final Product product) {
         assertProductSlotAvailabilityForNewProductAddition();
         productSlots.add(product);
+        Logger.info(TAG, "Product added to slot: " + product.toString());
+        Logger.info(TAG, "New Product Slot: " + productSlots);
     }
 
     @Override
