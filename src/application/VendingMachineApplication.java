@@ -24,7 +24,7 @@ public class VendingMachineApplication {
         vm.addProductToSlot(BigDecimal.valueOf(0.5), 2);
 
         //Buy product
-        Collection<Double> changeList = vm.buy(0, Arrays.asList(1.0,0.5,0.2));
+        Collection<Double> changeList = vm.buyProduct(0, Arrays.asList(1.0,0.5,0.2));
         Logger.info("Change: " + changeList);
     }
 }
