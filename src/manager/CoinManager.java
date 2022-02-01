@@ -12,7 +12,7 @@ public interface CoinManager {
 
     boolean areCoinsSupported(@NotNull final Collection<Double> coinList);
 
-    Collection<Double> getPossibleCoinCombinationFor(@NotNull final BigDecimal amount);
+    Collection<Double> getPossibleCoinCombination(@NotNull final BigDecimal amount);
 
     void balanceCoins(Collection<Double> creditCoinList, Collection<Double> debitCoinList);
 }

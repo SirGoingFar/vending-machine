@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
+import static util.Constants.*;
 import static util.NumbersUtil.compare;
 import static util.NumbersUtil.toDp;
 
@@ -61,7 +62,7 @@ public class DefaultCoinManager implements CoinManager {
         synchronized (COIN_ACCESS_MONITOR_OBJECT) {
             if (coinList == null || coinList.isEmpty()) {
                 Logger.error(TAG, "Coin list is empty. It is required for operation");
-                throw new IllegalArgumentException("Coin list is required");
+                throw new IllegalArgumentException(ERROR_MESSAGE_COIN_LIST_IS_REQUIRED);
             }
 
             for (Double coin : coinList) {
@@ -74,10 +75,10 @@ public class DefaultCoinManager implements CoinManager {
     }
 
     @Override
-    public Collection<Double> getPossibleCoinCombinationFor(@NotNull final BigDecimal amount) {
+    public Collection<Double> getPossibleCoinCombination(@NotNull final BigDecimal amount) {
         synchronized (COIN_ACCESS_MONITOR_OBJECT) {
             if (amount == null || amount.doubleValue() < 0.0) {
-                String errorMessage = "Invalid amount provided";
+                String errorMessage = ERROR_MESSAGE_INVALID_AMOUNT_PROVIDED;
                 Logger.error(TAG, errorMessage);
                 throw new IllegalArgumentException(errorMessage);
             }
@@ -107,27 +108,22 @@ public class DefaultCoinManager implements CoinManager {
     @Override
     public void balanceCoins(final Collection<Double> creditCoinList, final Collection<Double> debitCoinList) {
         synchronized (COIN_ACCESS_MONITOR_OBJECT) {
+            Map<Double, Integer> duplicatedCoinToCountMap = new HashMap<>(coinToCountMap);
             if (creditCoinList == null) {
-                String errorMessage = "Credit coin list is required for this operation";
+                String errorMessage = ERROR_MESSAGE_CREDIT_COIN_LIST_REQUIRED;
                 Logger.error(TAG, errorMessage);
                 throw new IllegalArgumentException(errorMessage);
             }
 
             if (debitCoinList == null) {
-                String errorMessage = "Debit coin list is required for this operation";
+                String errorMessage = ERROR_MESSAGE_DEBIT_COIN_LIST_REQUIRED;
                 Logger.error(TAG, errorMessage);
                 throw new IllegalArgumentException(errorMessage);
             }
 
             Logger.info(TAG, "Old Coin State: " + coinToCountMap);
 
-            //Remove debit coins
             int newCoinCount;
-            for (Double coin : debitCoinList) {
-                validateCoinSupport(coin);
-                newCoinCount = coinToCountMap.get(coin) - 1;
-                coinToCountMap.put(coin, newCoinCount);
-            }
 
             //Add credit coins
             for (Double coin : creditCoinList) {
@@ -136,7 +132,22 @@ public class DefaultCoinManager implements CoinManager {
                 coinToCountMap.put(coin, newCoinCount);
             }
 
-            Logger.info(TAG, "New Coin State: " + coinToCountMap);
+            Logger.info(TAG, "Updated (CREDIT) Coin State: " + coinToCountMap);
+
+            //Remove debit coins
+            for (Double coin : debitCoinList) {
+                validateCoinSupport(coin);
+                newCoinCount = coinToCountMap.get(coin) - 1;
+                if (newCoinCount < 0) {
+                    String errorMessage = ERROR_MESSAGE_COIN_COUNT_CANNOT_GO_TO_NEGATIVE;
+                    Logger.error(TAG, errorMessage);
+                    coinToCountMap = duplicatedCoinToCountMap; //reverse operation
+                    throw new IllegalStateException(errorMessage);
+                }
+                coinToCountMap.put(coin, newCoinCount);
+            }
+
+            Logger.info(TAG, "Updated (DEBIT) Coin State: " + coinToCountMap);
         }
     }
 
@@ -224,7 +235,7 @@ public class DefaultCoinManager implements CoinManager {
                 }
 
                 if (initialChangeCombinationSize == coinCombination.size()) {
-                    String errorMessage = "Available coin(s) cannot provide change";
+                    String errorMessage = ERROR_MESSAGE_AVAILABLE_COIN_S_CANNOT_PROVIDE_CHANGE;
                     Logger.error(TAG, errorMessage);
                     throw new IllegalStateException(errorMessage);
                 }
@@ -235,7 +246,7 @@ public class DefaultCoinManager implements CoinManager {
     }
 
     private void throwInsufficientAvailableCoinForChange() {
-        String errorMessage = "No sufficient coin(s) for change amount";
+        String errorMessage = ERROR_MESSAGE_INSUFFICIENT_COIN_S_FOR_CHANGE;
         Logger.error(TAG, errorMessage);
         throw new IllegalStateException(errorMessage);
     }
@@ -258,7 +269,7 @@ public class DefaultCoinManager implements CoinManager {
 
     private void validateCoinSupport(double coinValue) {
         if (!coinToCountMap.containsKey(coinValue)) {
-            String errorMessage = "Coin not supported";
+            String errorMessage = ERROR_MESSAGE_COIN_NOT_SUPPORTED;
             Logger.error(TAG, errorMessage);
             throw new IllegalArgumentException(errorMessage);
         }

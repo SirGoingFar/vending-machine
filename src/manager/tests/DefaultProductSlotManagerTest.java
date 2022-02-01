@@ -101,7 +101,7 @@ class DefaultProductSlotManagerTest {
 
 
     @Test
-    void setSlotProductPrice_attemptSettingSlotProductPriceToNull_throwsIllegalArgumentException() {
+    void setSlotProductPrice_setSlotProductPriceToNull_throwsIllegalArgumentException() {
         Exception thrownException = null;
         Product product = new Product(BigDecimal.TEN, 3);
         defaultProductSlotManager.addProductToSlot(product);
@@ -116,7 +116,7 @@ class DefaultProductSlotManagerTest {
     }
 
     @Test
-    void setSlotProductPrice_attemptSettingSlotProductPriceToInvalidValue_throwsIllegalArgumentException() {
+    void setSlotProductPrice_setSlotProductPriceToInvalidValue_throwsIllegalArgumentException() {
         Exception thrownException = null;
         Product product = new Product(BigDecimal.TEN, 3);
         defaultProductSlotManager.addProductToSlot(product);
@@ -320,7 +320,7 @@ class DefaultProductSlotManagerTest {
     }
 
     @Test
-    void getIndexOfProductInSlot_attemptingGettingSlotIndexOfProductNotInTheMachine_returnsMinusOne() {
+    void getIndexOfProductInSlot_getSlotIndexOfProductNotInTheMachine_returnsMinusOne() {
         Product product = new Product(BigDecimal.TEN, 2);
         Assertions.assertEquals(-1, defaultProductSlotManager.getIndexOfProductInSlot(product));
     }

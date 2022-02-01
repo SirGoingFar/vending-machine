@@ -77,7 +77,7 @@ public final class VendingMachine implements MaintenanceOperation, ConsumerOpera
 
             Collection<Double> customerChangeCombination = new ArrayList<>();
             if (compValue > 0) {
-                customerChangeCombination = coinManager.getPossibleCoinCombinationFor(coinSum.subtract(productPrice));
+                customerChangeCombination = coinManager.getPossibleCoinCombination(coinSum.subtract(productPrice));
             }
 
             //Balance inventory
