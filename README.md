@@ -27,6 +27,7 @@ perform an action on the state data. This has jeopardized the essence of paralle
 
 This is necessary for data consistency - a big deal in this system.
 
+
 ## Strategy chosen for providing the “best” set of coins returned (including trade-offs)
 I named the strategy **"deplete-highest-denomination-first"** as it focuses on depleting higher coin denomination first so as to rapidly take the total change amount to zero as well.
 This, by implication, means it will take fewer loop/iteration to get coin combination list computed for a typical customer change.
