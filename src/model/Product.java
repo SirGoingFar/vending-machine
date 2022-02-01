@@ -40,4 +40,12 @@ public class Product {
     public int hashCode() {
         return Objects.hash(price, inventorySize);
     }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "price=" + price +
+                ", inventorySize=" + inventorySize +
+                '}';
+    }
 }

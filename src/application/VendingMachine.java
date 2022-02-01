@@ -7,9 +7,14 @@ import manager.ProductSlotManager;
 import model.Product;
 import operation.ConsumerOperation;
 import operation.MaintenanceOperation;
+import util.Logger;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
+
+import static util.NumbersUtil.compare;
+import static util.NumbersUtil.toDp;
 
 public final class VendingMachine implements MaintenanceOperation, ConsumerOperation {
 
@@ -41,14 +46,48 @@ public final class VendingMachine implements MaintenanceOperation, ConsumerOpera
     public Collection<Double> buy(final int productSlotIndex, final Collection<Double> coinCollection) {
         synchronized (BUY_PRODUCT_MONITOR_OBJECT) {
             //Check for empty coin list
+            if (coinCollection == null || coinCollection.isEmpty()) {
+                throw new IllegalArgumentException("Coin for purchase action is required");
+            }
+
             //check if provided coins are supported
-            //Check if slot is available
-            //Check for product inventory count (>=1)
+            if (!coinManager.areCoinsSupported(coinCollection)) {
+                throw new IllegalArgumentException("Unsupported coin(s) provided");
+            }
+
+            //Check if slot is available for purchase
+            long availableProductInventorySize = productSlotManager.getSlotProductInventorySize(productSlotIndex);
+            if (availableProductInventorySize < 1) {
+                throw new IllegalStateException("Product is out of stock");
+            }
+
             //Check if product price is set
-            //Check if product amount < sum of coin list (sum using List.reduce)
-            //Check if change is available (add coin list items together, less the product  amount... then compute change)
-            //Balance inventory (less product inventory, balance coin - increment coin values in coin list, decrement the qty of coin)
-            return null;
+            BigDecimal productPrice = productSlotManager.getSlotProductPrice(productSlotIndex);
+            if (productPrice == null) {
+                Logger.error(TAG, String.format("Customer was interested in product on slot %d but the price has not been set", productSlotIndex));
+                throw new IllegalStateException("Technical error. Machine maintainer has been notified");
+            }
+
+            //Check if the customer has the purchasing power
+            BigDecimal coinSum = toDp(BigDecimal.valueOf(coinCollection.stream().mapToDouble(item -> item).sum()), 2);
+            int compValue = compare(coinSum, productPrice);
+            if (compValue < 0) {
+                throw new IllegalArgumentException("Product price is more than the coin(s) provided");
+            }
+
+            Collection<Double> customerChangeCombination = new ArrayList<>();
+            if (compValue > 0) {
+                customerChangeCombination = coinManager.getPossibleCoinCombination(coinSum.subtract(productPrice));
+            }
+
+            //Balance inventory
+            productSlotManager.updateSlotProductInventorySize(productSlotIndex, --availableProductInventorySize);
+
+            //Balance coin
+            coinManager.balanceCoins(coinCollection, customerChangeCombination);
+
+            //return customer change
+            return customerChangeCombination;
         }
     }
     //#endregion
