@@ -13,7 +13,7 @@ import static util.NumbersUtil.toDp;
 
 /**
  * Default implementation of {@link CoinManager}
- * */
+ */
 public class DefaultCoinManager implements CoinManager {
 
     //#region class constants
@@ -105,9 +105,6 @@ public class DefaultCoinManager implements CoinManager {
         }
     }
 
-    //Todo: Trade off - we could have used the customer coin as part of the change computation. But that doesn't follow a proper accounting process
-    //What if after adding the customer money to the available coin and another customer purchase hijack it in the process and we end up settling that
-    //the other customer with the first customer's money
     @Override
     public void balanceCoins(final Collection<Double> creditCoinList, final Collection<Double> debitCoinList) {
         synchronized (COIN_ACCESS_MONITOR_OBJECT) {
@@ -177,10 +174,9 @@ public class DefaultCoinManager implements CoinManager {
             for (Map.Entry<Double, Integer> coin : inputMap.entrySet()) {
                 total = total.add(BigDecimal.valueOf(coin.getKey() * coin.getValue()));
             }
-            return total.setScale(2, RoundingMode.HALF_UP);
+            return toDp(total, 2);
         }
     }
-
 
     private List<Double> generateChangeCoinCombination(final BigDecimal amount) {
         synchronized (COIN_ACCESS_MONITOR_OBJECT) {
@@ -188,7 +184,7 @@ public class DefaultCoinManager implements CoinManager {
                 String errorMessage = "Valid amount is required for this operation";
                 Logger.error(TAG, errorMessage);
                 throw new IllegalArgumentException(errorMessage);
-            } else if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            } else if (compare(amount, BigDecimal.ZERO) <= 0) {
                 //Amount supplied is less than or equals ZERO, return empty list
                 return new ArrayList<>();
             }
@@ -199,16 +195,14 @@ public class DefaultCoinManager implements CoinManager {
             List<Double> coinCombination = new ArrayList<>();
             int numberOfCoinValueDeduceable;
             int reduceCoinCountBy;
-            boolean breakLoop;
-            int initialChangeCombinationSize;
-
+            int initialCoinCombinationSize;
 
             //While remainingBalance is MORE THAN zero
             while (compare(remainingBalance, BigDecimal.ZERO) > 0) {
                 nonZeroBalanceCoins = getAllNonZeroBalanceCoins(nonZeroBalanceCoins);
-                nonZeroBalanceCoins = sortMapByKeyValueInDescingOrder(nonZeroBalanceCoins); //bubble up higher coin denomination
+                nonZeroBalanceCoins = sortMapByKeyValueInDescendingOrder(nonZeroBalanceCoins); //bubble up higher coin denomination
 
-                initialChangeCombinationSize = coinCombination.size();
+                initialCoinCombinationSize = coinCombination.size();
                 for (Map.Entry<Double, Integer> coin : nonZeroBalanceCoins.entrySet()) {
 
                     if (compare(toDp(BigDecimal.valueOf(coin.getKey()), 2), remainingBalance) > 0) {
@@ -228,16 +222,21 @@ public class DefaultCoinManager implements CoinManager {
                         coinCombination.add(coin.getKey());
                     }
 
+                    //Reduce the remaining balance we need more coin combination for
                     remainingBalance = remainingBalance.subtract(toDp(BigDecimal.valueOf(coin.getKey() * reduceCoinCountBy), 2));
+
+                    //Remove the number of coin added to the combination list
                     nonZeroBalanceCoins.put(coin.getKey(), coin.getValue() - reduceCoinCountBy);
 
-                    //Coin combination generated, return
                     if (compare(remainingBalance, BigDecimal.ZERO) == 0) {
+                        //Coin combination generated, return result
                         return coinCombination;
                     }
                 }
 
-                if (initialChangeCombinationSize == coinCombination.size()) {
+                if (initialCoinCombinationSize == coinCombination.size()) {
+                    //First futile loop (a loop that could not add a coin to the combination list) suspected,
+                    //subsequent loop will be futile too as nothing has changed. Declare no-coin-combination match
                     String errorMessage = ERROR_MESSAGE_AVAILABLE_COIN_S_CANNOT_PROVIDE_CHANGE;
                     Logger.error(TAG, errorMessage);
                     throw new IllegalStateException(errorMessage);
@@ -254,7 +253,7 @@ public class DefaultCoinManager implements CoinManager {
         throw new IllegalStateException(errorMessage);
     }
 
-    private Map<Double, Integer> sortMapByKeyValueInDescingOrder(Map<Double, Integer> unsortedMap) {
+    private Map<Double, Integer> sortMapByKeyValueInDescendingOrder(Map<Double, Integer> unsortedMap) {
         Map<Double, Integer> reversedSortedMap = new TreeMap<Double, Integer>(Collections.reverseOrder());
         reversedSortedMap.putAll(unsortedMap);
         return reversedSortedMap;
