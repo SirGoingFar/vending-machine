@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static util.Constants.*;
 import static util.NumbersUtil.compare;
 import static util.NumbersUtil.toDp;
 
@@ -43,40 +44,49 @@ public final class VendingMachine implements MaintenanceOperation, ConsumerOpera
 
     //#region Consumer
     @Override
-    public Collection<Double> buy(final int productSlotIndex, final Collection<Double> coinCollection) {
+    public Collection<Double> buyProduct(final int productSlotIndex, final Collection<Double> coinCollection) {
         synchronized (BUY_PRODUCT_MONITOR_OBJECT) {
             //Check for empty coin list
             if (coinCollection == null || coinCollection.isEmpty()) {
-                throw new IllegalArgumentException("Coin for purchase action is required");
+                String errorMessage = ERROR_MESSAGE_COIN_IS_REQUIRED_FOR_PURCHASE_OPERATION;
+                Logger.error(TAG, errorMessage);
+                throw new IllegalArgumentException(errorMessage);
             }
 
             //check if provided coins are supported
             if (!coinManager.areCoinsSupported(coinCollection)) {
-                throw new IllegalArgumentException("Unsupported coin(s) provided");
+                String errorMessage = ERROR_MESSAGE_COIN_NOT_SUPPORTED;
+                Logger.error(TAG, errorMessage);
+                throw new IllegalArgumentException(errorMessage);
             }
 
-            //Check if slot is available for purchase
+            //Check if slot has item available for purchase
             long availableProductInventorySize = productSlotManager.getSlotProductInventorySize(productSlotIndex);
             if (availableProductInventorySize < 1) {
-                throw new IllegalStateException("Product is out of stock");
+                String errorMessage = ERROR_MESSAGE_SLOT_OUT_OF_STOCK;
+                Logger.error(TAG, errorMessage);
+                throw new IllegalStateException(errorMessage);
             }
 
             //Check if product price is set
             BigDecimal productPrice = productSlotManager.getSlotProductPrice(productSlotIndex);
             if (productPrice == null) {
                 Logger.error(TAG, String.format("Customer was interested in product on slot %d but the price has not been set", productSlotIndex));
-                throw new IllegalStateException("Technical error. Machine maintainer has been notified");
+                throw new IllegalStateException(ERROR_MESSAGE_TECHNICAL_ERROR);
             }
 
             //Check if the customer has the purchasing power
             BigDecimal coinSum = toDp(BigDecimal.valueOf(coinCollection.stream().mapToDouble(item -> item).sum()), 2);
             int compValue = compare(coinSum, productPrice);
             if (compValue < 0) {
-                throw new IllegalArgumentException("Product price is more than the coin(s) provided");
+                String errorMessage = ERROR_MESSAGE_PRODUCT_PRICE_MORE_THAN_CUSTOMER_MONEY;
+                Logger.error(TAG, errorMessage);
+                throw new IllegalArgumentException(errorMessage);
             }
 
             Collection<Double> customerChangeCombination = new ArrayList<>();
             if (compValue > 0) {
+                //Customer has change to collect
                 customerChangeCombination = coinManager.getPossibleCoinCombination(coinSum.subtract(productPrice));
             }
 

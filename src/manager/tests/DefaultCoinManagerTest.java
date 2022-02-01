@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static util.Constants.*;
+import static util.NumbersUtil.getCountOfItem;
 
 class DefaultCoinManagerTest {
 
@@ -163,29 +164,6 @@ class DefaultCoinManagerTest {
         Assertions.assertEquals(supportedCoinToDebitCount, defaultCoinManager.getCoinAvailableCount(supportedCoinToDebit));
         Assertions.assertEquals(supportedCoinToCreditCount, defaultCoinManager.getCoinAvailableCount(supportedCoinToCredit));
     }
-
-    /*@Test
-    void getPossibleCoinCombination() {
-        Set<Double> coinList = new HashSet<>();
-        coinList.add(0.1);
-        coinList.add(0.2);
-        coinList.add(0.5);
-        coinList.add(1.0);
-        VendingMachine vm = new VendingMachine(10, coinList);
-
-        //Add initial coins
-        vm.setCoinAvailableCount(0.1, 3);
-        vm.setCoinAvailableCount(0.2, 2);
-        vm.setCoinAvailableCount(0.5, 7);
-        vm.setCoinAvailableCount(1.0, 1);
-
-        //Add product
-        vm.addProductToSlot(BigDecimal.valueOf(0.5), 2);
-
-        //Buy product
-        Collection<Double> changeList = vm.buy(0, Arrays.asList(1.0,0.5,0.2));
-        Logger.info("Change: " + changeList);
-    }*/
 
     @Test
     void getPossibleCoinCombination_amountIsNull_throwsIllegalArgumentException() {
@@ -356,15 +334,5 @@ class DefaultCoinManagerTest {
 
         Assertions.assertTrue(exception instanceof IllegalStateException);
         Assertions.assertEquals(ERROR_MESSAGE_AVAILABLE_COIN_S_CANNOT_PROVIDE_CHANGE, exception.getLocalizedMessage());
-    }
-
-    private int getCountOfItem(Collection<Double> coinCombination, double coin) {
-        int count = 0;
-        for (double c : coinCombination) {
-            if (c == coin) {
-                count++;
-            }
-        }
-        return count;
     }
 }

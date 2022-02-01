@@ -15,4 +15,8 @@ public class Constants {
     public static final String ERROR_MESSAGE_INVALID_AMOUNT_PROVIDED = "Invalid amount provided";
     public static final String ERROR_MESSAGE_INSUFFICIENT_COIN_S_FOR_CHANGE = "No sufficient coin(s) for change amount";
     public static final String ERROR_MESSAGE_AVAILABLE_COIN_S_CANNOT_PROVIDE_CHANGE = "Available coin(s) cannot provide change";
+    public static final String ERROR_MESSAGE_COIN_IS_REQUIRED_FOR_PURCHASE_OPERATION = "Coin for purchase action is required";
+    public static final String ERROR_MESSAGE_SLOT_OUT_OF_STOCK = "Product slot is out of stock";
+    public static final String ERROR_MESSAGE_TECHNICAL_ERROR = "Technical error. Machine maintainer has been notified";
+    public static final String ERROR_MESSAGE_PRODUCT_PRICE_MORE_THAN_CUSTOMER_MONEY = "Product price is more than the coin(s) provided";
 }
