@@ -10,6 +10,9 @@ import java.util.List;
 
 import static util.Constants.*;
 
+/**
+ * Default implementation of {@link ProductSlotManager}
+ * */
 public class DefaultProductSlotManager implements ProductSlotManager {
 
     //#region class constants

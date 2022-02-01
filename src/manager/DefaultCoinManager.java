@@ -11,6 +11,9 @@ import static util.Constants.*;
 import static util.NumbersUtil.compare;
 import static util.NumbersUtil.toDp;
 
+/**
+ * Default implementation of {@link CoinManager}
+ * */
 public class DefaultCoinManager implements CoinManager {
 
     //#region class constants
