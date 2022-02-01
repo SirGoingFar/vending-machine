@@ -17,6 +17,9 @@ import static util.Constants.*;
 import static util.NumbersUtil.compare;
 import static util.NumbersUtil.toDp;
 
+/**
+ * Implementation of the Vending Machine that performs both {@link MaintenanceOperation} and {@link ConsumerOperation}
+ * */
 public final class VendingMachine implements MaintenanceOperation, ConsumerOperation {
 
     //#region class constants
@@ -109,8 +112,8 @@ public final class VendingMachine implements MaintenanceOperation, ConsumerOpera
     }
 
     @Override
-    public void removeProductFromSlot(int productSlot) {
-        productSlotManager.removeProductAtSlot(productSlot);
+    public void removeProductFromSlot(int productSlotId) {
+        productSlotManager.removeProductAtSlot(productSlotId);
     }
 
     @Override
