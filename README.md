@@ -28,7 +28,7 @@ Furthermore, the strategy is completed in fewer loops/iterations if the differen
 - **supported coin list of {0.1, 1.0, 2.0, 0.2}***, it will take 3 iterations to compute the change coin combination (i.e. {2.0, 0.2, 0.1}),
 - **supported coin list of {0.1, 0.5}***, it will take 7 iterations to compute the change coin combination (i.e. {0.5, 0.5, 0.5, 0.5, 0.1, 0.1, 0.1})
 
-See [here]() for the flowchart of the implemented algorithm for the strategy.
+See [here](https://drive.google.com/file/d/1Rezz8xPPeYwjIFSbGUoIcXTT0cPwgWpC/view?usp=sharing) for the flowchart of the implemented algorithm for the strategy.
 
 **Tradeoff**"": We could have merged the customer submitted coin(s) to the available coin(s) before the change coin computation. But that doesn't follow a proper accounting process.
 The big question is: What if after merging the customer submitted coin(s) to the available coin(s) and another customer purchase request hijack (i.e. the processor assigns resource to another thread for execution) it in the process and we end up settling the other customer with the first customer's money. How do we refund the exact first customer submitted coin(s) if the customer purchase request fail?
