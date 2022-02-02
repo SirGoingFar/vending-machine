@@ -1,5 +1,7 @@
 # Vending Machine
 
+#### Candidate Name: Akintunde Olanrewaju (<eaolanrewaju@gmail.com>)
+
 ## Tradeoffs made between performance, readability, maintainability, etc
 ### 1. Use of Volatile keyword
 As the requirement document clarified (that multiple threads can access a single instance of a vending machine), it is important to ensure vending machine's state data (products & available coins) are kept consistent across all threads. However, this has an impact on the system performance.
