@@ -1,6 +1,6 @@
 # Vending Machine
 
-#### Candidate Name: Akintunde Olanrewaju (<eaolanrewaju@gmail.com>)
+#### NB: You can send in improvement PRs to the dev branch
 
 ## Tradeoffs made between performance, readability, maintainability, etc
 ### 1. Use of Volatile keyword
